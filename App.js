@@ -23,7 +23,19 @@ class Clock extends React.Component{
   constructor(props)
   {
     super(props);
-    this.state = {};
+    this.state = {
+      leftDisable:true,
+      leftReset:false,
+       
+    };
+  }
+  getData = (leftIsDisable,leftResetIsActive)=>{
+      //alert('get');
+      this.setState(pre=>{
+        return {leftDisable:leftIsDisable,leftReset:leftResetIsActive};
+      });
+      
+      alert(`disable=${this.state.leftDisable} reset = ${this.state.leftReset}`);
   }
   render(){
     return(
@@ -37,8 +49,11 @@ class Clock extends React.Component{
               
             </View>
             <View style = {styles.btnContainer}>
-                <LeftButton/>
-                <RightButton/>
+                <LeftButton disable = {this.state.leftDisable} 
+                reset = {this.state.leftReset}
+                count = {this.state.count} 
+                sendDataFromChild = {this.getData} />
+                <RightButton />
               </View>
           </View>
 
