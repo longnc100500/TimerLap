@@ -10,7 +10,7 @@ import React from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
+  FlatList,
   View,
   Text,
   StatusBar,
@@ -26,16 +26,91 @@ class Clock extends React.Component{
     this.state = {
       leftDisable:true,
       leftReset:false,
-       
+      rightStarted:false,
+      results:[],
+      time :0,
+      id:null 
     };
   }
-  getData = (leftIsDisable,leftResetIsActive)=>{
-      //alert('get');
+  timer=()=>{
+    let ID = setInterval(()=>{
       this.setState(pre=>{
-        return {leftDisable:leftIsDisable,leftReset:leftResetIsActive};
+        return {time:pre.time+10};
+      })
+    },10)
+    this.setState({id:ID});
+  }
+  add(){
+    let x = [...this.state.results,this.convertTime()];
+    this.setState({results:x});
+    console.log('Add new #Lap' + this.state.results);
+  }
+  convertTime(){
+    const time = this.state.time;
+    let min = parseInt(time / 60000);
+    let s = parseInt((time %60000)/1000);//154000
+    let ss = parseInt(((time%60000)%1000)/10);
+    let str = '';
+    if(min<10)
+      str +=`0${min}:`;
+    else
+      str +=`${min}:`;
+    if(s<10)
+      str+=`0${s},`;
+      else
+      str+=`${s},`;
+    if(ss<10)
+    str+=`0${ss}`;
+    else
+    str+=`${ss}`;
+    return str;
+
+  }
+  getDataFromLeftButton = ()=>{
+      //alert('get');
+      if(this.state.rightStarted === false)
+      {
+        //clearInterval(this.state.id);
+        this.setState(pre=>{
+        return {leftReset:false,leftDisable:true,rightStarted:false,results:[],time:0};
       });
-      
-      alert(`disable=${this.state.leftDisable} reset = ${this.state.leftReset}`);
+      }
+      else
+      {
+        //clearInterval(this.state.id);
+        console.log(this.state.id);
+        this.add();
+      }
+      //alert(`disable=${this.state.leftDisable} reset = ${this.state.leftReset}`);
+  }
+  getDataFromRightButton=(rightBtnIsStarted)=>{
+    if(this.state.rightStarted===false)
+        this.timer();
+    if(this.state.rightStarted===true)
+        clearInterval(this.state.id); 
+    
+    if(this.state.results.length===0)
+    {
+      //this.timer();
+      this.setState(pre=>{
+       
+        return {rightStarted:rightBtnIsStarted,leftDisable:!pre.leftDisable}
+        })
+
+    }else{
+      //this.timer();
+    this.setState(pre=>{
+      return {rightStarted:rightBtnIsStarted,leftReset:!pre.leftReset}
+      })
+    }
+  }
+  flastlistSeparator(){
+    console.log('i were called');
+    return (
+      <View style={{color:'white',height:2,width:'100%'}}>
+
+      </View>
+    )
   }
   render(){
     return(
@@ -44,7 +119,7 @@ class Clock extends React.Component{
             <View style={{flex:2}}></View>
             <View style = {styles.containerBoth}>
               <View style={styles.counterContainer}>
-              <Text style = {{fontSize:60,color:'white'}}>00:00,12</Text>  
+                <Text style = {{fontSize:60,color:'white'}}>{this.convertTime()}</Text>  
               </View>
               
             </View>
@@ -52,14 +127,33 @@ class Clock extends React.Component{
                 <LeftButton disable = {this.state.leftDisable} 
                 reset = {this.state.leftReset}
                 count = {this.state.count} 
-                sendDataFromChild = {this.getData} />
-                <RightButton />
+                sendDataFromChild = {this.getDataFromLeftButton} />
+                <RightButton
+                started = {this.state.rightStarted}
+                sendDataFromChild = {this.getDataFromRightButton}
+                />
               </View>
           </View>
-
+            
 
           <View style = {styles.listResults}>
-
+          <FlatList
+          style={{margin:20}}
+            data = {this.state.results}
+            renderItem = {(item)=>{
+              return(
+              <Text style={styles.textInItem}>{`#${item.index}    `}{item.item}</Text>
+              )
+            }}
+            keyExtractor = {(item,index)=>(index.toString())}
+            ItemSeparatorComponent = {()=>{
+              return (
+                <View style={{color:'white',height:2,width:'100%'}}>
+          
+                </View>
+              )
+            }}
+            />
           </View>
       </View>
     )
@@ -79,7 +173,7 @@ const styles = StyleSheet.create({
   listResults:{
     flex:4,
     
-    
+    //backgroundColor:'white',
   },
    containerBoth:{
      flexDirection:'column',
@@ -102,7 +196,14 @@ const styles = StyleSheet.create({
     flex :3,
     justifyContent:'center',
     alignItems:'center',
+  },
+  
+  textInItem:{
+    fontSize:20,
+    color:'white',
+    //marginVertical:10,
   }
+
 
 });
 module.exports = Clock;

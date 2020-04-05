@@ -8,28 +8,43 @@ import {
 export default class RightButton extends React.Component{
     constructor(props){
         super(props);
-        this.state = {}
+        
+    }
+    sendData=()=>{
+        this.props.sendDataFromChild(!this.props.started)
     }
     render(){
         return(
-            <TouchableHighlight style = {styles.button}>
-                <Text style = {styles.text}>Stop</Text>
+            <TouchableHighlight 
+            style = {this.props.started === true ? styles.isRunning:styles.isPause}
+            onPress = {this.sendData}
+            >
+                <Text style = {styles.text}>{this.props.started === true ? 'Tạm dừng':'Bắt đầu'}</Text>
             </TouchableHighlight>
         )
     }
 }
 const styles = StyleSheet.create({
-    button:{
+    isRunning:{
         width:70,
         height:70,
         borderWidth:1,
         borderRadius:35,
         justifyContent:'center',
         alignItems:'center',
-        borderColor:'white'
+        borderColor:'red'
     },
     text:{
-        fontSize:25,
+        fontSize:20,
         color:'white'
-    }
+    },
+    isPause:{
+        width:70,
+        height:70,
+        borderWidth:1,
+        borderRadius:35,
+        justifyContent:'center',
+        alignItems:'center',
+        borderColor:'green'
+    },
 })
